@@ -1,5 +1,6 @@
 # Lab 3 - EC2 Auto Scaling + AWS ALB (Terraform)
 
+**Repo:** https://github.com/mathnap2/lab3
 **Student:** mathias.napoles@iteso.mx - ID 745671
 
 Deploys, in AWS Academy Learner Lab (`us-east-1`):
