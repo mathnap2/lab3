@@ -1,0 +1,445 @@
+data.aws_ssm_parameter.al2023: Reading...
+data.aws_vpc.default: Reading...
+data.aws_ssm_parameter.al2023: Read complete after 0s [id=/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64]
+data.aws_vpc.default: Read complete after 1s [id=vpc-0a8cf48b88b9b6039]
+data.aws_subnets.default: Reading...
+data.aws_subnets.default: Read complete after 0s [id=us-east-1]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_autoscaling_group.web will be created
+  + resource "aws_autoscaling_group" "web" {
+      + arn                              = (known after apply)
+      + availability_zones               = (known after apply)
+      + default_cooldown                 = (known after apply)
+      + desired_capacity                 = 1
+      + enabled_metrics                  = [
+          + "GroupDesiredCapacity",
+          + "GroupInServiceInstances",
+          + "GroupMaxSize",
+          + "GroupMinSize",
+          + "GroupTotalInstances",
+        ]
+      + force_delete                     = false
+      + force_delete_warm_pool           = false
+      + health_check_grace_period        = 120
+      + health_check_type                = "ELB"
+      + id                               = (known after apply)
+      + ignore_failed_scaling_activities = false
+      + load_balancers                   = (known after apply)
+      + max_size                         = 3
+      + metrics_granularity              = "1Minute"
+      + min_size                         = 1
+      + name                             = "lab3-asg-asg"
+      + name_prefix                      = (known after apply)
+      + predicted_capacity               = (known after apply)
+      + protect_from_scale_in            = false
+      + service_linked_role_arn          = (known after apply)
+      + target_group_arns                = (known after apply)
+      + vpc_zone_identifier              = [
+          + "subnet-02899d75c0b84d4fb",
+          + "subnet-02f154095fef3c37e",
+          + "subnet-04b51358f21efbaa6",
+          + "subnet-060de049633b56d77",
+          + "subnet-07055b20cd0aa8699",
+          + "subnet-0fb7dcfce511d0cf6",
+        ]
+      + wait_for_capacity_timeout        = "10m"
+      + warm_pool_size                   = (known after apply)
+
+      + availability_zone_distribution (known after apply)
+
+      + capacity_reservation_specification (known after apply)
+
+      + launch_template {
+          + id      = (known after apply)
+          + name    = (known after apply)
+          + version = (known after apply)
+        }
+
+      + mixed_instances_policy (known after apply)
+
+      + tag {
+          + key                 = "Name"
+          + propagate_at_launch = true
+          + value               = "lab3-asg-web"
+        }
+
+      + traffic_source (known after apply)
+    }
+
+  # aws_autoscaling_policy.scale_in will be created
+  + resource "aws_autoscaling_policy" "scale_in" {
+      + adjustment_type         = "ChangeInCapacity"
+      + arn                     = (known after apply)
+      + autoscaling_group_name  = "lab3-asg-asg"
+      + cooldown                = 60
+      + enabled                 = true
+      + id                      = (known after apply)
+      + metric_aggregation_type = (known after apply)
+      + name                    = "lab3-asg-scale-in"
+      + policy_type             = "SimpleScaling"
+      + scaling_adjustment      = -1
+    }
+
+  # aws_autoscaling_policy.scale_out will be created
+  + resource "aws_autoscaling_policy" "scale_out" {
+      + adjustment_type         = "ChangeInCapacity"
+      + arn                     = (known after apply)
+      + autoscaling_group_name  = "lab3-asg-asg"
+      + cooldown                = 90
+      + enabled                 = true
+      + id                      = (known after apply)
+      + metric_aggregation_type = (known after apply)
+      + name                    = "lab3-asg-scale-out"
+      + policy_type             = "SimpleScaling"
+      + scaling_adjustment      = 1
+    }
+
+  # aws_cloudwatch_metric_alarm.cpu_high will be created
+  + resource "aws_cloudwatch_metric_alarm" "cpu_high" {
+      + actions_enabled                       = true
+      + alarm_actions                         = (known after apply)
+      + alarm_description                     = "Average CPU above 50% -> add an instance"
+      + alarm_name                            = "lab3-asg-cpu-high"
+      + arn                                   = (known after apply)
+      + comparison_operator                   = "GreaterThanThreshold"
+      + dimensions                            = {
+          + "AutoScalingGroupName" = "lab3-asg-asg"
+        }
+      + evaluate_low_sample_count_percentiles = (known after apply)
+      + evaluation_periods                    = 1
+      + id                                    = (known after apply)
+      + metric_name                           = "CPUUtilization"
+      + namespace                             = "AWS/EC2"
+      + period                                = 60
+      + statistic                             = "Average"
+      + tags_all                              = (known after apply)
+      + threshold                             = 50
+      + treat_missing_data                    = "missing"
+    }
+
+  # aws_cloudwatch_metric_alarm.cpu_low will be created
+  + resource "aws_cloudwatch_metric_alarm" "cpu_low" {
+      + actions_enabled                       = true
+      + alarm_actions                         = (known after apply)
+      + alarm_description                     = "Average CPU below 20% -> remove an instance"
+      + alarm_name                            = "lab3-asg-cpu-low"
+      + arn                                   = (known after apply)
+      + comparison_operator                   = "LessThanThreshold"
+      + dimensions                            = {
+          + "AutoScalingGroupName" = "lab3-asg-asg"
+        }
+      + evaluate_low_sample_count_percentiles = (known after apply)
+      + evaluation_periods                    = 2
+      + id                                    = (known after apply)
+      + metric_name                           = "CPUUtilization"
+      + namespace                             = "AWS/EC2"
+      + period                                = 60
+      + statistic                             = "Average"
+      + tags_all                              = (known after apply)
+      + threshold                             = 20
+      + treat_missing_data                    = "missing"
+    }
+
+  # aws_launch_template.web will be created
+  + resource "aws_launch_template" "web" {
+      + arn                    = (known after apply)
+      + default_version        = (known after apply)
+      + id                     = (known after apply)
+      + image_id               = (sensitive value)
+      + instance_type          = "t3.micro"
+      + latest_version         = (known after apply)
+      + name                   = (known after apply)
+      + name_prefix            = "lab3-asg-lt-"
+      + tags_all               = (known after apply)
+      + user_data              = "IyEvYmluL2Jhc2gKZG5mIGluc3RhbGwgLXkgaHR0cGQgc3RyZXNzLW5nClRPS0VOPSQoY3VybCAtcyAtWCBQVVQgImh0dHA6Ly8xNjkuMjU0LjE2OS4yNTQvbGF0ZXN0L2FwaS90b2tlbiIgLUggIlgtYXdzLWVjMi1tZXRhZGF0YS10b2tlbi10dGwtc2Vjb25kczogMjE2MDAiKQpJSUQ9JChjdXJsIC1zIC1IICJYLWF3cy1lYzItbWV0YWRhdGEtdG9rZW46ICRUT0tFTiIgaHR0cDovLzE2OS4yNTQuMTY5LjI1NC9sYXRlc3QvbWV0YS1kYXRhL2luc3RhbmNlLWlkKQpBWj0kKGN1cmwgLXMgLUggIlgtYXdzLWVjMi1tZXRhZGF0YS10b2tlbjogJFRPS0VOIiBodHRwOi8vMTY5LjI1NC4xNjkuMjU0L2xhdGVzdC9tZXRhLWRhdGEvcGxhY2VtZW50L2F2YWlsYWJpbGl0eS16b25lKQpJUD0kKGN1cmwgLXMgLUggIlgtYXdzLWVjMi1tZXRhZGF0YS10b2tlbjogJFRPS0VOIiBodHRwOi8vMTY5LjI1NC4xNjkuMjU0L2xhdGVzdC9tZXRhLWRhdGEvbG9jYWwtaXB2NCkKY2F0ID4gL3Zhci93d3cvaHRtbC9pbmRleC5odG1sIDw8SFRNTAo8IURPQ1RZUEUgaHRtbD4KPGh0bWw+CjxoZWFkPgogIDx0aXRsZT5MYWIgMyAtIEF1dG8gU2NhbGluZzwvdGl0bGU+CiAgPHN0eWxlPgogICAgYm9keSB7IGZvbnQtZmFtaWx5OiBBcmlhbCwgc2Fucy1zZXJpZjsgdGV4dC1hbGlnbjogY2VudGVyOyBtYXJnaW4tdG9wOiA4MHB4OyBiYWNrZ3JvdW5kOiAjZGJlYWZlOyB9CiAgICAuYm94IHsgZGlzcGxheTogaW5saW5lLWJsb2NrOyBwYWRkaW5nOiAzMHB4IDUwcHg7IGJvcmRlci1yYWRpdXM6IDEycHg7IGJhY2tncm91bmQ6IHdoaXRlOyBib3gtc2hhZG93OiAwIDJweCA4cHggIzAwMDM7IH0KICA8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5PgogIDxkaXYgY2xhc3M9ImJveCI+CiAgICA8aDE+TGFiIDMgLSBFQzIgQXV0byBTY2FsaW5nICsgQUxCPC9oMT4KICAgIDxwPjxiPkluc3RhbmNlIElEOjwvYj4gJElJRDwvcD4KICAgIDxwPjxiPkF2YWlsYWJpbGl0eSBab25lOjwvYj4gJEFaPC9wPgogICAgPHA+PGI+UHJpdmF0ZSBJUDo8L2I+ICRJUDwvcD4KICA8L2Rpdj4KPC9ib2R5Pgo8L2h0bWw+CkhUTUwKc3lzdGVtY3RsIGVuYWJsZSAtLW5vdyBodHRwZAo="
+      + vpc_security_group_ids = (known after apply)
+
+      + iam_instance_profile {
+          + name = "LabInstanceProfile"
+        }
+
+      + metadata_options {
+          + http_endpoint               = "enabled"
+          + http_protocol_ipv6          = (known after apply)
+          + http_put_response_hop_limit = (known after apply)
+          + http_tokens                 = "required"
+          + instance_metadata_tags      = (known after apply)
+        }
+
+      + monitoring {
+          + enabled = true
+        }
+
+      + tag_specifications {
+          + resource_type = "instance"
+          + tags          = {
+              + "Name" = "lab3-asg-web"
+            }
+        }
+    }
+
+  # aws_lb.this will be created
+  + resource "aws_lb" "this" {
+      + arn                                                          = (known after apply)
+      + arn_suffix                                                   = (known after apply)
+      + client_keep_alive                                            = 3600
+      + desync_mitigation_mode                                       = "defensive"
+      + dns_name                                                     = (known after apply)
+      + drop_invalid_header_fields                                   = false
+      + enable_deletion_protection                                   = false
+      + enable_http2                                                 = true
+      + enable_tls_version_and_cipher_suite_headers                  = false
+      + enable_waf_fail_open                                         = false
+      + enable_xff_client_port                                       = false
+      + enable_zonal_shift                                           = false
+      + enforce_security_group_inbound_rules_on_private_link_traffic = (known after apply)
+      + id                                                           = (known after apply)
+      + idle_timeout                                                 = 60
+      + internal                                                     = (known after apply)
+      + ip_address_type                                              = (known after apply)
+      + load_balancer_type                                           = "application"
+      + name                                                         = "lab3-asg-alb"
+      + name_prefix                                                  = (known after apply)
+      + preserve_host_header                                         = false
+      + security_groups                                              = (known after apply)
+      + subnets                                                      = [
+          + "subnet-02899d75c0b84d4fb",
+          + "subnet-02f154095fef3c37e",
+          + "subnet-04b51358f21efbaa6",
+          + "subnet-060de049633b56d77",
+          + "subnet-07055b20cd0aa8699",
+          + "subnet-0fb7dcfce511d0cf6",
+        ]
+      + tags_all                                                     = (known after apply)
+      + vpc_id                                                       = (known after apply)
+      + xff_header_processing_mode                                   = "append"
+      + zone_id                                                      = (known after apply)
+
+      + subnet_mapping (known after apply)
+    }
+
+  # aws_lb_listener.http will be created
+  + resource "aws_lb_listener" "http" {
+      + arn                                                                   = (known after apply)
+      + id                                                                    = (known after apply)
+      + load_balancer_arn                                                     = (known after apply)
+      + port                                                                  = 80
+      + protocol                                                              = "HTTP"
+      + routing_http_request_x_amzn_mtls_clientcert_header_name               = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_issuer_header_name        = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_leaf_header_name          = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_serial_number_header_name = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_subject_header_name       = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_validity_header_name      = (known after apply)
+      + routing_http_request_x_amzn_tls_cipher_suite_header_name              = (known after apply)
+      + routing_http_request_x_amzn_tls_version_header_name                   = (known after apply)
+      + routing_http_response_access_control_allow_credentials_header_value   = (known after apply)
+      + routing_http_response_access_control_allow_headers_header_value       = (known after apply)
+      + routing_http_response_access_control_allow_methods_header_value       = (known after apply)
+      + routing_http_response_access_control_allow_origin_header_value        = (known after apply)
+      + routing_http_response_access_control_expose_headers_header_value      = (known after apply)
+      + routing_http_response_access_control_max_age_header_value             = (known after apply)
+      + routing_http_response_content_security_policy_header_value            = (known after apply)
+      + routing_http_response_server_enabled                                  = (known after apply)
+      + routing_http_response_strict_transport_security_header_value          = (known after apply)
+      + routing_http_response_x_content_type_options_header_value             = (known after apply)
+      + routing_http_response_x_frame_options_header_value                    = (known after apply)
+      + ssl_policy                                                            = (known after apply)
+      + tags_all                                                              = (known after apply)
+      + tcp_idle_timeout_seconds                                              = (known after apply)
+
+      + default_action {
+          + order            = (known after apply)
+          + target_group_arn = (known after apply)
+          + type             = "forward"
+        }
+
+      + mutual_authentication (known after apply)
+    }
+
+  # aws_lb_target_group.web will be created
+  + resource "aws_lb_target_group" "web" {
+      + arn                                = (known after apply)
+      + arn_suffix                         = (known after apply)
+      + connection_termination             = (known after apply)
+      + deregistration_delay               = "30"
+      + id                                 = (known after apply)
+      + ip_address_type                    = (known after apply)
+      + lambda_multi_value_headers_enabled = false
+      + load_balancer_arns                 = (known after apply)
+      + load_balancing_algorithm_type      = (known after apply)
+      + load_balancing_anomaly_mitigation  = (known after apply)
+      + load_balancing_cross_zone_enabled  = (known after apply)
+      + name                               = "lab3-asg-tg"
+      + name_prefix                        = (known after apply)
+      + port                               = 80
+      + preserve_client_ip                 = (known after apply)
+      + protocol                           = "HTTP"
+      + protocol_version                   = (known after apply)
+      + proxy_protocol_v2                  = false
+      + slow_start                         = 0
+      + tags_all                           = (known after apply)
+      + target_type                        = "instance"
+      + vpc_id                             = "vpc-0a8cf48b88b9b6039"
+
+      + health_check {
+          + enabled             = true
+          + healthy_threshold   = 2
+          + interval            = 15
+          + matcher             = "200"
+          + path                = "/"
+          + port                = "traffic-port"
+          + protocol            = "HTTP"
+          + timeout             = 5
+          + unhealthy_threshold = 2
+        }
+
+      + stickiness (known after apply)
+
+      + target_failover (known after apply)
+
+      + target_group_health (known after apply)
+
+      + target_health_state (known after apply)
+    }
+
+  # aws_security_group.alb will be created
+  + resource "aws_security_group" "alb" {
+      + arn                    = (known after apply)
+      + description            = "Allow HTTP from the internet to the ALB"
+      + egress                 = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+                # (1 unchanged attribute hidden)
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + description      = "HTTP from anywhere"
+              + from_port        = 80
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 80
+            },
+        ]
+      + name                   = "lab3-asg-alb-sg"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + revoke_rules_on_delete = false
+      + tags_all               = (known after apply)
+      + vpc_id                 = "vpc-0a8cf48b88b9b6039"
+    }
+
+  # aws_security_group.web will be created
+  + resource "aws_security_group" "web" {
+      + arn                    = (known after apply)
+      + description            = "Allow HTTP only from the ALB"
+      + egress                 = [
+          + {
+              + cidr_blocks      = [
+                  + "0.0.0.0/0",
+                ]
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+                # (1 unchanged attribute hidden)
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = []
+              + description      = "HTTP from ALB"
+              + from_port        = 80
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = (known after apply)
+              + self             = false
+              + to_port          = 80
+            },
+        ]
+      + name                   = "lab3-asg-web-sg"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + revoke_rules_on_delete = false
+      + tags_all               = (known after apply)
+      + vpc_id                 = "vpc-0a8cf48b88b9b6039"
+    }
+
+Plan: 11 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + alb_dns_name       = (known after apply)
+  + asg_name           = "lab3-asg-asg"
+  + launch_template_id = (known after apply)
+aws_security_group.alb: Creating...
+aws_lb_target_group.web: Creating...
+aws_lb_target_group.web: Creation complete after 2s [id=arn:aws:elasticloadbalancing:us-east-1:784925736370:targetgroup/lab3-asg-tg/ec9c682cbb771fa8]
+aws_security_group.alb: Creation complete after 3s [id=sg-06e90edb00876961e]
+aws_security_group.web: Creating...
+aws_lb.this: Creating...
+aws_security_group.web: Creation complete after 3s [id=sg-09b5f74589f124e17]
+aws_launch_template.web: Creating...
+aws_launch_template.web: Creation complete after 6s [id=lt-0d068ac71c9a7ac99]
+aws_autoscaling_group.web: Creating...
+aws_lb.this: Still creating... [00m10s elapsed]
+aws_autoscaling_group.web: Still creating... [00m10s elapsed]
+aws_lb.this: Still creating... [00m20s elapsed]
+aws_autoscaling_group.web: Creation complete after 18s [id=lab3-asg-asg]
+aws_autoscaling_policy.scale_in: Creating...
+aws_autoscaling_policy.scale_out: Creating...
+aws_autoscaling_policy.scale_in: Creation complete after 0s [id=lab3-asg-scale-in]
+aws_autoscaling_policy.scale_out: Creation complete after 1s [id=lab3-asg-scale-out]
+aws_cloudwatch_metric_alarm.cpu_high: Creating...
+aws_cloudwatch_metric_alarm.cpu_low: Creating...
+aws_cloudwatch_metric_alarm.cpu_high: Creation complete after 1s [id=lab3-asg-cpu-high]
+aws_cloudwatch_metric_alarm.cpu_low: Creation complete after 1s [id=lab3-asg-cpu-low]
+aws_lb.this: Still creating... [00m30s elapsed]
+aws_lb.this: Still creating... [00m40s elapsed]
+aws_lb.this: Still creating... [00m50s elapsed]
+aws_lb.this: Still creating... [01m00s elapsed]
+aws_lb.this: Still creating... [01m10s elapsed]
+aws_lb.this: Still creating... [01m20s elapsed]
+aws_lb.this: Still creating... [01m30s elapsed]
+aws_lb.this: Still creating... [01m40s elapsed]
+aws_lb.this: Still creating... [01m50s elapsed]
+aws_lb.this: Still creating... [02m01s elapsed]
+aws_lb.this: Still creating... [02m11s elapsed]
+aws_lb.this: Creation complete after 2m13s [id=arn:aws:elasticloadbalancing:us-east-1:784925736370:loadbalancer/app/lab3-asg-alb/ae5944d5a114f2a9]
+aws_lb_listener.http: Creating...
+aws_lb_listener.http: Creation complete after 1s [id=arn:aws:elasticloadbalancing:us-east-1:784925736370:listener/app/lab3-asg-alb/ae5944d5a114f2a9/120dd9bfa6e53faf]
+
+Apply complete! Resources: 11 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+alb_dns_name = "http://lab3-asg-alb-1859230192.us-east-1.elb.amazonaws.com"
+asg_name = "lab3-asg-asg"
+launch_template_id = "lt-0d068ac71c9a7ac99"
